@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+	<script type="text/javascript" th:fragment="javascript">
+
+		$(document).ready(function () {
+			$("#buscar_producto").autocomplete({
+				source: function (request, response) {
+					$.ajax({
+						url: "/factura/cargar-productos/" + request.term,
+						dataType: "json",
+						data: {
+							term: request.term
+						},
+						success: function (data) {
+							response($.map(data, function (item) {
+								return {
+									value: item.id,
+									label: item.nombre,
+									precio: item.precio,
+								};
+							}));
+						},
+
+					});
+				},
+				select: function (event, ui) {
+					//$("#buscar_producto").val(ui.item.label);
+
+					if (itemsHelper.hasProducto(ui.item.value)) {
+						itemsHelper.incrementaCantidad(ui.item.value, ui.item.precio);
+						$('input[name="buscar_producto"]').val(null);
+						return false;
+					}
+					var linea = $("#plantillaItemsFactura").html();
+
+					linea = linea.replace(/{ID}/g, ui.item.value);
+					linea = linea.replace(/{NOMBRE}/g, ui.item.label);
+					linea = linea.replace(/{PRECIO}/g, ui.item.precio);
+
+					$("#cargarItemProductos tbody").append(linea);
+
+					itemsHelper.calcularImporte(ui.item.value, ui.item.precio, 1);
+
+					$('input[name="buscar_producto"]').val(null);
+					return false;
+				},
+				focus: function (event, ui) {
+					event.preventDefault();
+					$('input[name="buscar_producto"]').val(ui.item.label);
+				},
+			});
+		}
+
+
+		);
+
+		$("form").submit(function () {
+			$("#plantillaItemsFactura").remove();
+			return;
+		});
+		
+		
+		var itemsHelper = {
+			calcularImporte: function (id, precio, cantidad) {
+				$("#total_importe_" + id).html(parseInt(precio) * parseInt(cantidad));
+				this.calcularGranTotal();
+			},
+
+			hasProducto: function (id) {
+				var resultado = false;
+				$('input[name="item_id[]"]').each(function () {
+					if (parseInt(id) == parseInt($(this).val())) {
+						resultado = true;
+					}
+				});
+
+				return resultado;
+			},
+
+			incrementaCantidad: function (id, precio) {
+				var cantidad = $("#cantidad_" + id).val() ? parseInt($("#cantidad_" + id).val()) : 0;
+				$("#cantidad_" + id).val(++cantidad);
+
+				this.calcularImporte(id, precio, cantidad);
+			},
+
+			eliminarLineaFactura: function (id) {
+				Swal.fire({
+					title: '¿Estas seguro?',
+					text: "No se podra revertir",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					confirmButtonText: 'Si',
+					cancelButtonText: 'Cancelar'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						$("#row_" + id).remove();
+						this.calcularGranTotal();
+						Swal.fire(
+							'Borrado!',
+							'Se ha borrado con exito',
+							'success'
+						)
+
+					}
+				})
+
+			},
+
+			calcularGranTotal: function () {
+				var total = 0;
+
+				$('span[id^="total_importe_"]').each(function () {
+					total += parseInt($(this).html());
+				});
+
+				$('#gran_total').html(total);
+			}
+		}
+
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>
