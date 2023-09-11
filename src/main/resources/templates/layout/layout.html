@@ -20,17 +20,17 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav mr-auto">
-					<li class="nav-item active"><a class="nav-link" href="#">Home
+					<li class="nav-item active"><a class="nav-link" th:href="@{/listar}" th:text="#{text.menu.home}">Home
 							<span class="sr-only">(current)</span>
 						</a></li>
-					<li class="nav-item"><a class="nav-link" th:href="@{/listar}">Clientes</a>
+					<li class="nav-item"><a class="nav-link" th:href="@{/listar}" th:text="#{text.menu.customer}">Clientes</a>
 					</li>
 				</ul>
 
 
 				<ul class="navbar-nav navbar-right">
 
-					<li sec:authorize="!isAuthenticated()"><a class="btn btn-outline-light" th:href="@{/login}">Iniciar
+					<li sec:authorize="!isAuthenticated()"><a class="btn btn-outline-light" th:href="@{/login}" th:text="#{text.menu.signin}">Iniciar
 							Sesion </a></li>
 
 					<li class="btn-group dropleft" sec:authorize="isAuthenticated()">
@@ -40,20 +40,32 @@
 						</button>
 						<div class="dropdown-menu">
 							<form th:action="@{/logout}" method="post" id="logoutForm">
-								<button class="dropdown-item" type="button" disabled>Roles: <span
+								<button class="dropdown-item" type="button" disabled >Roles: <span
 										style="font-size: 10px;"
 										sec:authentication="principal.authorities"></span></button>
 
-								<button class="dropdown-item" type="submit" disabled>Perfil</button>
+								<button class="dropdown-item" type="submit" disabled th:text="#{text.menu.perfil}">Perfil</button>
 
 								<button class="dropdown-item" type="submit"
-									onclick="document.getElementById('logoutForm').submit">Salir</button>
+									onclick="document.getElementById('logoutForm').submit" th:text="#{text.menu.signout}">Salir</button>
 
 							</form>
 						</div>
 					</li>
 				</ul>
 
+				<ul class="navbar-nav navbar-right mx-4">
+					
+					<li class="nav-item dropdown">
+						<a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="dropdownLenguaje" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<span th:text="#{text.locale.language}"></span> </a>
+							<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+								<a class="dropdown-item" th:href="@{/locale(lang=es_Es)}" th:text="#{text.locale.es}">ES</a>
+								<a class="dropdown-item" th:href="@{/locale(lang=en_EN)}" th:text="#{text.locale.en}">EN</a>
+							</div>
+						</a>
+					</li>
+				</ul>
 			</div>
 		</nav>
 
@@ -67,8 +79,8 @@
 
 	<footer th:fragment="footer" class="container">
 
-		
-		<p>
+
+		<p th:text="#{text.footer.copy}">
 			Desarrollado a modo de estudio! vamos ganchito! .<br />
 		</p>
 		<!-- Optional JavaScript -->
