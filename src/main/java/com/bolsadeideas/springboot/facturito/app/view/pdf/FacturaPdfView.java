@@ -1,5 +1,6 @@
 package com.bolsadeideas.springboot.facturito.app.view.pdf;
 
+import java.awt.Color;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
@@ -28,13 +29,25 @@ public class FacturaPdfView extends AbstractPdfView {
 
 		PdfPTable tabla = new PdfPTable(1);
 		tabla.setSpacingAfter(20);
-		tabla.addCell("Datos del cliente");
+
+		PdfPCell cell = null;
+		cell = new PdfPCell(new Phrase("Datos del Cliente"));
+		cell.setBackgroundColor(new Color(170,210,250));
+		cell.setPadding(8f);
+		
+		tabla.addCell(cell);	
 		tabla.addCell(factura.getCliente().getNombre() + " " + factura.getCliente().getApellido());
 		tabla.addCell(factura.getCliente().getEmail());
 
 		PdfPTable tabla2 = new PdfPTable(1);
 		tabla2.setSpacingAfter(20);
-		tabla2.addCell("Datos del cliente");
+		
+		
+		cell = new PdfPCell(new Phrase("Datos de la factura"));
+		cell.setBackgroundColor(new Color(110,220,200));
+		cell.setPadding(8f);
+		
+		tabla2.addCell(cell);
 		tabla2.addCell("Folio: " + factura.getId());
 		tabla2.addCell("Descripcion: " + factura.getDescripcion());
 		tabla2.addCell("Fecha: " + factura.getCreateAt());
@@ -43,6 +56,8 @@ public class FacturaPdfView extends AbstractPdfView {
 		document.add(tabla2);
 		
 		PdfPTable tabla3 = new PdfPTable(4);
+		tabla3.setSpacingAfter(20);
+		tabla3.setWidths(new float[] {3.5f, 1, 1, 1});
 		tabla3.addCell("Producto: ");
 		tabla3.addCell("Precio: ");
 		tabla3.addCell("Cantidad: ");
@@ -51,16 +66,38 @@ public class FacturaPdfView extends AbstractPdfView {
 		for(ItemFactura item: factura.getItems()) {
 			tabla3.addCell(item.getProducto().getNombre());
 			tabla3.addCell(item.getProducto().getPrecio().toString());
-			tabla3.addCell(item.getCantidad().toString());
+			cell = new PdfPCell(new Phrase(item.getCantidad().toString()));
+			cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+			tabla3.addCell(cell);
 			tabla3.addCell(item.calcularImporte().toString());
 		}
 		
-		PdfPCell cell = new PdfPCell(new Phrase("Total: "));
+		cell = new PdfPCell(new Phrase("Total: "));
 		cell.setColspan(3);
 		cell.setHorizontalAlignment(PdfCell.ALIGN_RIGHT);
 		tabla3.addCell(cell);
 		tabla3.addCell(factura.getTotal().toString());
 		document.add(tabla3);
+		
+		
+		PdfPTable tabla4 = new PdfPTable(1);
+		tabla4.setSpacingAfter(20);
+		
+		
+		cell = new PdfPCell(new Phrase("Observaciones"));
+		cell.setBackgroundColor(new Color(170,150,180));
+		cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+		cell.setPadding(8f);
+		
+		tabla4.addCell(cell);
+		if(factura.getObservacion().isEmpty()) {
+			tabla4.addCell("Sin Observaciones");
+		}else {
+			
+			tabla4.addCell(factura.getObservacion().toString());
+		}
+		
+		document.add(tabla4);
 	}
 
 }
