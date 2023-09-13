@@ -1,9 +1,13 @@
 package com.bolsadeideas.springboot.facturito.app.view.pdf;
 
 import java.awt.Color;
+import java.util.Locale;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.view.document.AbstractPdfView;
 
 import com.bolsadeideas.springboot.facturito.app.models.entity.Factura;
@@ -21,17 +25,23 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component("factura/ver")
 public class FacturaPdfView extends AbstractPdfView {
 
+	@Autowired
+	private MessageSource messageSource;
+	@Autowired
+	private LocaleResolver localeResolver;
+	
 	@Override
 	protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		Factura factura = (Factura) model.get("factura");
-
+		Locale locale = localeResolver.resolveLocale(request);
+		
 		PdfPTable tabla = new PdfPTable(1);
 		tabla.setSpacingAfter(20);
 
 		PdfPCell cell = null;
-		cell = new PdfPCell(new Phrase("Datos del Cliente"));
+		cell = new PdfPCell(new Phrase(messageSource.getMessage("text.factura.ver.datos.cliente",null,locale)));
 		cell.setBackgroundColor(new Color(170,210,250));
 		cell.setPadding(8f);
 		
@@ -43,14 +53,14 @@ public class FacturaPdfView extends AbstractPdfView {
 		tabla2.setSpacingAfter(20);
 		
 		
-		cell = new PdfPCell(new Phrase("Datos de la factura"));
+		cell = new PdfPCell(new Phrase(messageSource.getMessage("text.factura.ver.datos.factura",null,locale)));
 		cell.setBackgroundColor(new Color(110,220,200));
 		cell.setPadding(8f);
 		
 		tabla2.addCell(cell);
-		tabla2.addCell("Folio: " + factura.getId());
-		tabla2.addCell("Descripcion: " + factura.getDescripcion());
-		tabla2.addCell("Fecha: " + factura.getCreateAt());
+		tabla2.addCell(messageSource.getMessage("text.cliente.factura.folio",null,locale) + ": "+ factura.getId());
+		tabla2.addCell(messageSource.getMessage("text.cliente.factura.descripcion",null,locale) + ": " + factura.getDescripcion());
+		tabla2.addCell(messageSource.getMessage("text.cliente.factura.fecha",null,locale) + ": " + factura.getCreateAt());
 
 		document.add(tabla);
 		document.add(tabla2);
@@ -58,10 +68,10 @@ public class FacturaPdfView extends AbstractPdfView {
 		PdfPTable tabla3 = new PdfPTable(4);
 		tabla3.setSpacingAfter(20);
 		tabla3.setWidths(new float[] {3.5f, 1, 1, 1});
-		tabla3.addCell("Producto: ");
-		tabla3.addCell("Precio: ");
-		tabla3.addCell("Cantidad: ");
-		tabla3.addCell("Total: ");
+		tabla3.addCell(messageSource.getMessage("text.factura.form.item.nombre",null,locale) + ": ");
+		tabla3.addCell(messageSource.getMessage("text.factura.form.item.precio",null,locale) + ": ");
+		tabla3.addCell(messageSource.getMessage("text.factura.form.item.cantidad",null,locale) + ": ");
+		tabla3.addCell(messageSource.getMessage("text.cliente.factura.total",null,locale));
 		
 		for(ItemFactura item: factura.getItems()) {
 			tabla3.addCell(item.getProducto().getNombre());
@@ -72,7 +82,7 @@ public class FacturaPdfView extends AbstractPdfView {
 			tabla3.addCell(item.calcularImporte().toString());
 		}
 		
-		cell = new PdfPCell(new Phrase("Total: "));
+		cell = new PdfPCell(new Phrase(messageSource.getMessage("text.cliente.factura.total",null,locale)+":"));
 		cell.setColspan(3);
 		cell.setHorizontalAlignment(PdfCell.ALIGN_RIGHT);
 		tabla3.addCell(cell);
@@ -84,14 +94,14 @@ public class FacturaPdfView extends AbstractPdfView {
 		tabla4.setSpacingAfter(20);
 		
 		
-		cell = new PdfPCell(new Phrase("Observaciones"));
+		cell = new PdfPCell(new Phrase(messageSource.getMessage("text.factura.form.observacion",null,locale)));
 		cell.setBackgroundColor(new Color(170,150,180));
 		cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
 		cell.setPadding(8f);
 		
 		tabla4.addCell(cell);
 		if(factura.getObservacion().isEmpty()) {
-			tabla4.addCell("Sin Observaciones");
+			tabla4.addCell(messageSource.getMessage("text.factura.ver.no.observaciones",null,locale));
 		}else {
 			
 			tabla4.addCell(factura.getObservacion().toString());
