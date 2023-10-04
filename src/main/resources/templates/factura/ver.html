@@ -15,7 +15,8 @@
 
 				<h4 class="card-tittle">
 					<a th:href="@{'/ver/'+ ${factura.cliente.id}}" class="btn btn-dark btn--sm">&laquo; volver</a>
-					<a class="btn btn-info btn--sm float-right" th:href="@{'/factura/ver/' +${factura.id}(format=pdf)}" target="_blank">Exportar PDF</a>
+					<a class="btn btn-info btn--sm float-right mx-2" th:href="@{'/factura/ver/' +${factura.id}(format=pdf)}" target="_blank">Exportar PDF</a>
+					<a class="btn btn-secondary btn--sm float-right" th:href="@{'/factura/ver/' +${factura.id}(format=xlsx)}" target="_blank">Exportar Excel</a>
 				</h4>
 
 
